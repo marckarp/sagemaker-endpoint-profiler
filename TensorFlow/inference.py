@@ -1,5 +1,6 @@
 
 import json
+import time
 
 def input_handler(data, context):
     """ Pre-process request input before it is sent to TensorFlow Serving REST API
@@ -9,6 +10,7 @@ def input_handler(data, context):
     Returns:
         (dict): a JSON-serializable dict that contains request body and headers
     """
+    time.wait(2)
     if context.request_content_type == 'application/json':
         # pass through json (assumes it's correctly formed)
         d = data.read().decode('utf-8')
@@ -34,7 +36,7 @@ def output_handler(data, context):
     """
     if data.status_code != 200:
         raise ValueError(data.content.decode('utf-8'))
-
+    time.wait(2)
     response_content_type = context.accept_header
     prediction = data.content
     return prediction, response_content_type
