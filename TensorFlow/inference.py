@@ -3,9 +3,13 @@ import json
 import time
 import numpy as np
 import logging
+import boto3
+
+client = boto3.client('sagemaker-featurestore-runtime')
 
 
-def retrieve_latest_features_expensive(data,record_id):
+def retrieve_latest_features_boto3_client_create(data,record_id):
+    print("retrieve_latest_features_boto3_client_create")
     import boto3
 
     client = boto3.client('sagemaker-featurestore-runtime')
@@ -13,8 +17,20 @@ def retrieve_latest_features_expensive(data,record_id):
     response = client.get_record(
     FeatureGroupName='my-features',
     RecordIdentifierValueAsString=str(record_id),
-
     )
+    
+    return response["Record"][0]["ValueAsString"]
+    
+    
+    
+    
+def retrieve_latest_features(data,record_id):
+    print("retrieve_latest_features")
+    response = client.get_record(
+    FeatureGroupName='my-features',
+    RecordIdentifierValueAsString=str(record_id),
+    )
+    
     return response["Record"][0]["ValueAsString"]
     
 
@@ -32,12 +48,8 @@ def input_handler(data, context):
         d = data.read().decode('utf-8')
       
         input_data = json.loads(d)
-        print("Prediction features recieved from InvokeEndpoint API:")
-        print(type(input_data["data"]))
-        print("Features recieved from Feature Store:")
-        print(type(retrieve_latest_features_expensive(input_data["data"],json.loads(input_data["id"]))))
-              
-        assert input_data["data"] == json.loads(retrieve_latest_features_expensive(input_data["data"],input_data["id"]))
+
+        assert input_data["data"] == json.loads(retrieve_latest_features(input_data["data"],input_data["id"]))
       
         return json.dumps({"inputs" : input_data["data"]})
 
