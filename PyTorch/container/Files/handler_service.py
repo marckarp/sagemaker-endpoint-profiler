@@ -20,7 +20,7 @@ import os
 import sys
 
 ENABLE_MULTI_MODEL = os.getenv("SAGEMAKER_MULTI_MODEL", "false") == "true"
-
+profiling_group_name = os.environ['PROFILING_GROUP_NAME']
 
 class HandlerService(DefaultHandlerService):
 
@@ -43,7 +43,7 @@ class HandlerService(DefaultHandlerService):
 
     def initialize(self, context):
         from codeguru_profiler_agent import Profiler
-        Profiler(profiling_group_name='PyTorch-Sagemaker-Endpoint').start()
+        Profiler(profiling_group_name=profiling_group_name).start()
         # Adding the 'code' directory path to sys.path to allow importing user modules when multi-model mode is enabled.
         if (not self._initialized) and ENABLE_MULTI_MODEL:
             code_dir = os.path.join(context.system_properties.get("model_dir"), 'code')
