@@ -3,6 +3,8 @@ import threading
 from codeguru_profiler_agent import Profiler
 from logging.config import dictConfig
 
+profiling_group_name = os.environ['PROFILING_GROUP_NAME']
+
 dictConfig({
     'version': 1,
     'formatters': {'default': {
@@ -31,6 +33,6 @@ def post_fork(server, worker):
     post_fork() only runs in workers but not in master.
     """
     server.log.info("Starting profiler for {} in {}".format(os.getpid(), threading.get_ident()))
-    worker.profiler = Profiler(profiling_group_name="TensorFlow-Sagemaker-Endpoint")
+    worker.profiler = Profiler(profiling_group_name=profiling_group_name)
     worker.profiler.start()
     server.log.info("Profiler started running for worker pid {}: master pid {}.".format(os.getpid(), worker.ppid))
